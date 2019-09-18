@@ -11,6 +11,8 @@
     <modules>
         <module>javaCode</module>
         <module>springCode</module>
+        <module>spingbootRabbitmq</module>
+        <module>rabbitmq-springboot-producer</module>
     </modules>
 
 
