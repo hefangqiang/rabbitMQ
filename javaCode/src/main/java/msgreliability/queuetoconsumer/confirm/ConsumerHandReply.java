@@ -23,7 +23,7 @@ public class ConsumerHandReply {
         // 建立连接到RabbitMQ
         Connection connection = ConnectionUtil.getConnection();
         // 创建信道
-        Channel channel = connection.createChannel();
+        final Channel channel = connection.createChannel();
 
         /* 声明交换机，队列，在发送方或者消费方都可以定义，保险起见两边都定义 */
         // 1.创建direct类型交换机(防止发送消息的时候RabbitMQ 没有该exchange)
@@ -48,17 +48,33 @@ public class ConsumerHandReply {
                     System.out.println("确认消息："+envelope.getDeliveryTag());
                 }catch (Exception e){
                     e.getMessage();
-                    // 拒绝消息
-                    // param: 消息标签，是否批量确认，被拒绝的消息是否重回队列(消息重回队列会到队列的头部，错误消息一直被拒绝，可能造成死循环)
+                    // 一次可拒绝消息多条消息
+                    // param: 消息标签，是否批量确认，被拒绝的消息是否重回队列(消息重回队列会到队列的头部，错误消息一直被拒绝，
+                    // 可能造成死循环,最好不要重回队列)
                     channel.basicNack(envelope.getDeliveryTag(),false,false);
+                    // 一次拒绝一条消息
+                    //channel.basicReject(envelope.getDeliveryTag(),false);
                     System.out.println("拒绝消息："+envelope.getDeliveryTag());
                 }
             }
         };
-        // 消费者正式开始在指定队列上消费消息
+        // 消费者正式开始在指定队列上消费消息 异步推送
         channel.basicConsume(QUEUE_NAME, false, consumer);
 
-    }
 
+        // 主动获取
+//        while(true){
+//            GetResponse getResponse =
+//                    channel.basicGet(QUEUE_NAME, true);
+//            if(null != getResponse){
+//                System.out.println("received["
+//                        +getResponse.getEnvelope().getRoutingKey()+"]"
+//                        +new String(getResponse.getBody()));
+//            }
+//        }
+
+
+
+    }
 
 }

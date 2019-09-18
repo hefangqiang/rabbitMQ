@@ -27,7 +27,7 @@ public class MakeErrorDlxConsumer {
         // 建立连接到RabbitMQ
         Connection connection = ConnectionUtil.getConnection();
         // 创建信道
-        Channel channel = connection.createChannel();
+        final Channel channel = connection.createChannel();
 
         /* 声明交换机，队列，在发送方或者消费方都可以定义，保险起见两边都定义 */
         // 1.创建direct类型交换机(防止发送消息的时候RabbitMQ 没有该exchange)

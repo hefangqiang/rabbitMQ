@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/rabbit
+       http://www.springframework.org/schema/rabbit/spring-rabbit-2.1.xsd">
+
+    <!-- 加载rabbitmq.properties文件 -->
+    <context:property-placeholder location="classpath:rabbitmq.properties" ignore-unresolvable="true"/>
+
+    <!-- rabbitmq连接工厂  开启生产者消息确认和失败通知 -->
+    <rabbit:connection-factory id="connectionFactory"
+                               host="${rabbitmq.host}"
+                               port="${rabbitmq.port}"
+                               virtual-host="${rabbitmq.vhost}"
+                               username="${rabbitmq.username}"
+                               password="${rabbitmq.password}"
+                               publisher-confirms="true"
+                               publisher-returns="true"/>
+    <!--rabbitAdmin启动(spring用于管理rabbitmq)-->
+    <rabbit:admin connection-factory="connectionFactory" />
+
+    <!-- 导入producer和consumer配置文件-->
+    <import resource="rabbitmq-producer.xml"/>
+    <import resource="rabbitmq-consumer.xml"/>
+
+</beans>

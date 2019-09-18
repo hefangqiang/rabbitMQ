@@ -46,7 +46,9 @@ public class ProducerTransaction {
             System.out.println("消息发送失败");
             e.getStackTrace();
             channel.txRollback();
-        }catch (Exception e){ //其他错误
+            // 对失败消息消息进行处理
+        }
+        catch (Exception e){ //其他错误
             e.getStackTrace();
         }finally {
             channel.close();

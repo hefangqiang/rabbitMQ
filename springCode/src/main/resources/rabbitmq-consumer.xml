@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/rabbit
+       http://www.springframework.org/schema/rabbit/spring-rabbit-2.1.xsd">
+
+    <!-- 扫描consumer包 -->
+    <context:component-scan base-package="com.consumer"/>
+
+    <!-- 为保证交换器和队列一定存在，在生产者和消费者都进行创建 -->
+    <!--声明 queue-->
+    <rabbit:queue  name="spring_queue"  durable="false"  >
+        <!-- 配置队列参数 -->
+        <rabbit:queue-arguments >
+            <!-- 配置超时时间(30分钟),死信交换器和消息重发路由键(dlx.exchange)-->
+            <entry key="x-message-ttl" value="1800000" value-type="java.lang.Long" />
+            <entry key="x-dead-letter-exchange" value="dlx.exchange" />
+            <entry key="x-dead-letter-routing-key" value="routingKey" />
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+
+    <!--声明topic类型的exchange-->
+    <rabbit:topic-exchange name="spring_topic_exchange" durable="false">
+        <!-- 队列绑定到交换器，并设置路由键 -->
+        <rabbit:bindings>
+            <rabbit:binding pattern="spring.email" queue="spring_queue"/>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+
+    <!-- 配置consumer 监听, 消息者手动签收消息
+            acknowledge="manual" ： 手动签收
+            prefetch="10" ： 每次预取10个消息
+    -->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" prefetch="10">
+        <rabbit:listener ref="recvMessage" queue-names="spring_queue" method="onMessage"/>
+    </rabbit:listener-container>
+
+
+
+
+
+
+</beans>

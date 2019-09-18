@@ -33,24 +33,33 @@ public class ProducerSyncConfirm {
 
         // 定义日志级别   作为路由key使用
         String[] logsLevel = {"error","info","warning"};
+//        for (int i = 0; i < 3; i++) {
+//            String logLevel = logsLevel[i&3];
+//            String msg = "Hello ,这是["+logLevel+"]消息"+i;
+//
+//            // 发布消息到 test_producerConfirm 交换机
+//            channel.basicPublish(EXCHANGE_NAME, logLevel, null, msg.getBytes());
+//            System.out.println("发送消息："+msg);
+//            // 同步等待消息确认 单条确认
+//            if(channel.waitForConfirms()){
+//                System.out.println("send success");
+//            }else{
+//                System.out.println("send failure");
+//            }
+//
+//        }
+
         for (int i = 0; i < 3; i++) {
             String logLevel = logsLevel[i&3];
             String msg = "Hello ,这是["+logLevel+"]消息"+i;
-
             // 发布消息到 test_producerConfirm 交换机
             channel.basicPublish(EXCHANGE_NAME, logLevel, null, msg.getBytes());
             System.out.println("发送消息："+msg);
-
-            // 等待消息确认
-            if(channel.waitForConfirms()){
-                System.out.println("send success");
-            }else{
-                System.out.println("send failure");
-            }
-
-
-
         }
+        // 同步批量确认前面三条
+        channel.waitForConfirmsOrDie();
+
+
         // 开启了监听不要把信道关了，不然发送完消息就结束了
 //        channel.close();
 //        connection.close();
